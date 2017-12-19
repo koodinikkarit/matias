@@ -1,0 +1,17 @@
+CREATE TABLE `song` (
+	`rowid`	integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`song_item_uid`	text UNIQUE,
+	`song_rev_uid`	text,
+	`song_uid`	text,
+	`title`	text NOT NULL,
+	`author`	text,
+	`copyright`	text,
+	`administrator`	text,
+	`description`	text,
+	`tags`	text,
+	`reference_number`,
+	`vendor_id`	integer,
+	`presentation_id`	integer,
+	`layout_revision`	integer DEFAULT 1,
+	`revision`	integer DEFAULT 1
+);
