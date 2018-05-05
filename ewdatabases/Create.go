@@ -2,6 +2,7 @@ package ewdatabases
 
 import (
 	"github.com/koodinikkarit/matias/ewdatabase_models"
+	"github.com/satori/go.uuid"
 )
 
 func (ewi *EwDatabaseInstance) CreateSong(
@@ -11,14 +12,18 @@ func (ewi *EwDatabaseInstance) CreateSong(
 	ewdatabasemodels.Song,
 	ewdatabasemodels.Word,
 ) {
+	u1 := uuid.Must(uuid.NewV4())
 	song := ewdatabasemodels.Song{
-		Title: title,
+		Title:       title,
+		SongItemUID: u1.String(),
+		SongUID:     u1.String(),
 	}
 	ewi.SongsDB.Create(&song)
+
 	songWords := ewdatabasemodels.Word{
-		SongId: song.Rowid,
+		SongID: song.Rowid,
 		Words:  PrepareWords(text),
 	}
 	ewi.SongsWordsDB.Create(&songWords)
-	return song, songWords
+	return song, ewdatabasemodels.Word{}
 }

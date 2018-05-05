@@ -32,7 +32,7 @@ func (p *Program) HandleNewVariation(
 	var ewDatabases []models.EwDatabase
 	p.matiasDatabase.DB.
 		Where("song_database_id = ?", songDatabaseVariation.SongDatabaseID).
-		Find(ewDatabases)
+		Find(&ewDatabases)
 
 	for _, ewDatabase := range ewDatabases {
 		ewDatabaseInstance := p.GetOrCreateEwDatabaseInstance(

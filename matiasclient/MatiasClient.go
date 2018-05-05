@@ -5,28 +5,29 @@ import (
 	"log"
 	"time"
 
+	"github.com/koodinikkarit/go-clientlibs/matias"
 	"github.com/koodinikkarit/matias/ewdatabases"
-	"github.com/koodinikkarit/matias/matias_service"
 	"github.com/koodinikkarit/matias/models"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
 
 type MatiasClient struct {
-	ctx                      context.Context
-	cancel                   context.CancelFunc
-	ip                       string
-	port                     string
-	matiasKey                string
-	ewDatabaseInstancces     []ewdatabases.EwDatabaseInstance
-	client                   MatiasService.MatiasClient
-	newGrpcError             chan codes.Code
-	clientAccepted           chan bool
-	newEwDatabase            chan models.EwDatabase
-	newSongDatabaseVariation chan models.SongDatabaseVariation
-	newSongDatabaseTag       chan models.SongDatabaseTag
-	newTagVariation          chan models.TagVariation
-	newVariation             chan models.Variation
+	ctx                          context.Context
+	cancel                       context.CancelFunc
+	ip                           string
+	port                         string
+	matiasKey                    string
+	ewDatabaseInstancces         []ewdatabases.EwDatabaseInstance
+	client                       MatiasService.MatiasClient
+	newGrpcError                 chan codes.Code
+	clientAccepted               chan bool
+	newEwDatabase                chan models.EwDatabase
+	newSongDatabaseVariation     chan models.SongDatabaseVariation
+	removedSongDatabaseVariation chan models.SongDatabaseVariation
+	newSongDatabaseTag           chan models.SongDatabaseTag
+	newTagVariation              chan models.TagVariation
+	newVariation                 chan models.Variation
 }
 
 func NewMatiasClient(
@@ -39,6 +40,7 @@ func NewMatiasClient(
 	clientAccepted chan bool,
 	newEwDatabase chan models.EwDatabase,
 	newSongDatabaseVariation chan models.SongDatabaseVariation,
+	removedSongDatabaseVariation chan models.SongDatabaseVariation,
 	newSongDatabaseTag chan models.SongDatabaseTag,
 	newTagVariation chan models.TagVariation,
 	newVariation chan models.Variation,
@@ -53,19 +55,20 @@ func NewMatiasClient(
 
 	newCtx, cancel := context.WithCancel(ctx)
 	matiasClient := &MatiasClient{
-		ctx:                      newCtx,
-		cancel:                   cancel,
-		ip:                       ip,
-		port:                     port,
-		matiasKey:                matiasKey,
-		client:                   client,
-		newGrpcError:             newGrpcError,
-		clientAccepted:           clientAccepted,
-		newEwDatabase:            newEwDatabase,
-		newSongDatabaseVariation: newSongDatabaseVariation,
-		newSongDatabaseTag:       newSongDatabaseTag,
-		newTagVariation:          newTagVariation,
-		newVariation:             newVariation,
+		ctx:                          newCtx,
+		cancel:                       cancel,
+		ip:                           ip,
+		port:                         port,
+		matiasKey:                    matiasKey,
+		client:                       client,
+		newGrpcError:                 newGrpcError,
+		clientAccepted:               clientAccepted,
+		newEwDatabase:                newEwDatabase,
+		newSongDatabaseVariation:     newSongDatabaseVariation,
+		removedSongDatabaseVariation: removedSongDatabaseVariation,
+		newSongDatabaseTag:           newSongDatabaseTag,
+		newTagVariation:              newTagVariation,
+		newVariation:                 newVariation,
 	}
 
 	matiasClient.ListenChanges(latestConnectionDate)

@@ -23,6 +23,7 @@ func (p *Program) parseConfig() {
 			log.Fatalf("Error when creating key %v", err)
 		}
 		configFile.MatiasKey = randomString
+		p.matiasKey = configFile.MatiasKey
 	}
 
 	if configFile.MatiasDatabasePath == "" {
@@ -56,16 +57,14 @@ func (p *Program) parseConfig() {
 
 	if configFile.MatiasServiceIP != p.configFile.MatiasServiceIP ||
 		configFile.MataisServicePort != p.configFile.MataisServicePort {
+		p.matiasServicePort = configFile.MataisServicePort
 		if p.matiasClient != nil {
 			p.matiasClient.Close()
 			p.matiasClient = nil
 		}
 		if configFile.MatiasServiceIP != "" {
-			p.createMatiasClient(
-				configFile.MatiasServiceIP,
-				configFile.MataisServicePort,
-				configFile.MatiasKey,
-			)
+			p.matiasServiceIP = configFile.MatiasServiceIP
+			p.createMatiasClient()
 		}
 	}
 

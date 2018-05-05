@@ -2,16 +2,16 @@ package ewdatabasemodels
 
 type Song struct {
 	Rowid           uint32 `gorm:"AUTO_INCREMENT;primary_key"`
-	SongItemUID     string `gorm:"unique"`
-	SongRevUID      string
-	SongUID         string
+	SongItemUID     string `gorm:"column:song_item_uid"`
+	SongRevUID      string `gorm:"column:song_rev_uid"`
+	SongUID         string `gorm:"column:song_uid"`
 	Title           string
 	Author          string
 	Copyright       string
 	Administrator   string
 	Description     string
 	Tags            string
-	ReferenceNumber int
+	ReferenceNumber string
 	VendorID        int
 	PresentationID  int
 	LayoutRevision  int

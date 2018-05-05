@@ -2,6 +2,7 @@ package program
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/koodinikkarit/matias/configuration"
@@ -24,10 +25,15 @@ type Program struct {
 	isClientAcceptedChannel           chan bool
 	newEwDatabase                     chan models.EwDatabase
 	newSongDatabaseVariation          chan models.SongDatabaseVariation
+	removedSongDatabaseVariation      chan models.SongDatabaseVariation
 	newSongDatabaseTag                chan models.SongDatabaseTag
 	newTagVariation                   chan models.TagVariation
 	newVariation                      chan models.Variation
 	ewDatabaseLockStateChangedChannel chan ewdatabases.EwDatabaseLockEvent
+	reconnectTimer                    chan bool
+	matiasServiceIP                   string
+	matiasServicePort                 string
+	matiasKey                         string
 }
 
 func (p *Program) Start() {
@@ -36,6 +42,9 @@ func (p *Program) Start() {
 		select {
 		case errorCode := <-p.newMatiasClientGrpcError:
 			p.HandleNewGrpcError(errorCode)
+		case <-p.reconnectTimer:
+			fmt.Println("reconnectTiemr")
+			p.createMatiasClient()
 		case isClientAccepted := <-p.isClientAcceptedChannel:
 			p.HandleIsCLientAccepted(isClientAccepted)
 		case newEwDatabase := <-p.newEwDatabase:
@@ -46,6 +55,10 @@ func (p *Program) Start() {
 			p.HandleNewSongDatabaseVariation(
 				newSongDatabaseVariation,
 			)
+		case removedSongDatabaseVariation := <-p.removedSongDatabaseVariation:
+			p.HandleRemovedSongDatabaseVariation(
+				removedSongDatabaseVariation,
+			)
 		case newSongDatabaseTag := <-p.newSongDatabaseTag:
 			p.HandleNewSongDatabaseTag(
 				newSongDatabaseTag,
@@ -55,6 +68,7 @@ func (p *Program) Start() {
 				newTagVariation,
 			)
 		case newVariation := <-p.newVariation:
+			fmt.Println("newVariation", newVariation)
 			p.HandleNewVariation(
 				newVariation,
 			)
@@ -81,9 +95,12 @@ func NewProgram(ctx context.Context) *Program {
 		isClientAcceptedChannel:           make(chan bool),
 		newEwDatabase:                     make(chan models.EwDatabase),
 		newSongDatabaseVariation:          make(chan models.SongDatabaseVariation),
+		removedSongDatabaseVariation:      make(chan models.SongDatabaseVariation),
 		newSongDatabaseTag:                make(chan models.SongDatabaseTag),
 		newTagVariation:                   make(chan models.TagVariation),
 		newVariation:                      make(chan models.Variation),
 		ewDatabaseLockStateChangedChannel: make(chan ewdatabases.EwDatabaseLockEvent),
+		ewDatabaseInstances:               make(map[uint32]*ewdatabases.EwDatabaseInstance),
+		reconnectTimer:                    make(chan bool),
 	}
 }

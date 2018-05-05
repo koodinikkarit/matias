@@ -13,7 +13,7 @@ func (p *Program) HandleNewSongDatabaseVariation(
 	var songDatabaseVariation models.SongDatabaseVariation
 	p.matiasDatabase.DB.
 		Where("song_database_id = ?", newSongDatabaseVariation.SongDatabaseID).
-		Where("variation_id = ?", songDatabaseVariation.VariationID).
+		Where("variation_id = ?", newSongDatabaseVariation.VariationID).
 		First(&songDatabaseVariation)
 
 	if songDatabaseVariation.ID == 0 {

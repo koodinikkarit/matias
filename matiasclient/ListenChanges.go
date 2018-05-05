@@ -2,6 +2,7 @@ package matiasclient
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -11,7 +12,7 @@ import (
 
 	"github.com/koodinikkarit/matias/models"
 
-	"github.com/koodinikkarit/matias/matias_service"
+	"github.com/koodinikkarit/go-clientlibs/matias"
 )
 
 func (mc *MatiasClient) ListenChanges(
@@ -41,6 +42,7 @@ func (mc *MatiasClient) ListenChanges(
 				log.Println("Listen recv error %v", err)
 				return
 			}
+			fmt.Println("evebtItem.EventMessage", eventItem.EventMessage)
 			switch event := eventItem.EventMessage.(type) {
 			case *MatiasService.EventItem_AcceptedKey:
 				mc.clientAccepted <- event.AcceptedKey
@@ -53,9 +55,13 @@ func (mc *MatiasClient) ListenChanges(
 				}
 			case *MatiasService.EventItem_NewSongDatabaseVariation:
 				mc.newSongDatabaseVariation <- models.SongDatabaseVariation{
-					ServerID:       event.NewSongDatabaseVariation.Id,
 					SongDatabaseID: event.NewSongDatabaseVariation.SongDatabaseId,
 					VariationID:    event.NewSongDatabaseVariation.VariationId,
+				}
+			case *MatiasService.EventItem_RemovedSongDatabaseVariation:
+				mc.removedSongDatabaseVariation <- models.SongDatabaseVariation{
+					SongDatabaseID: event.RemovedSongDatabaseVariation.SongDatabaseId,
+					VariationID:    event.RemovedSongDatabaseVariation.VariationId,
 				}
 			case *MatiasService.EventItem_NewSongDatabaseTag:
 				mc.newSongDatabaseTag <- models.SongDatabaseTag{
@@ -70,7 +76,7 @@ func (mc *MatiasClient) ListenChanges(
 					VariationID: event.NewTagVariation.VariationId,
 				}
 			case *MatiasService.EventItem_NewVariation:
-				//log.Printf("New variation %v", event.NewVariation)
+				log.Printf("New variation %v", event.NewVariation)
 				mc.newVariation <- models.Variation{
 					ServerID: event.NewVariation.Id,
 					Name:     event.NewVariation.Name,

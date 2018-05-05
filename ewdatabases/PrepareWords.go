@@ -5,5 +5,5 @@ import (
 )
 
 func PrepareWords(original string) string {
-	return `{\rtf1{\pard ` + strings.Replace(original, `\n`, `\par`, -1)
+	return `{\rtf1{\pard ` + strings.Replace(original, "\n", `\par `, -1) + "}}"
 }
